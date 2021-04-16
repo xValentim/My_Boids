@@ -42,6 +42,24 @@ class Boid:
         self.position.add_vector(self.velocity)
         self.velocity.add_vector(self.acceleration)
 
-    def show(self): #TODO
+    #### Craig Reynolds model ####
+    # steer to avoid crowding local flockmates
+    def separation(self):
         pass
+        #TODO
+
+    # steer towards the average heading of local flockmates
+    def align(self):
+        pass
+        #TODO
+    
+    # steer to move toward the average position of local flockmates
+    def cohesion(self):
+        pass
+        #TODO
+
+    def show(self): 
+        #TODO
         #pygame.draw.circle(window, red, (p2.x, p2.y), p2.r)
+        pass
+        
