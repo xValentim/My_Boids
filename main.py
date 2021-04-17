@@ -16,7 +16,7 @@ altura = 300
 r = 5
 
 flock = []
-for i in range(100):
+for i in range(0):
     b = Boid(largura / 2, altura / 2, 0, 0)
     b.velocity.createRandom2D()
     flock.append(b)
@@ -35,8 +35,17 @@ while continua:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 continua = False
-    
+            if event.key == pygame.K_p:
+                for i in range(10):
+                    b = Boid(largura / 2, altura / 2, 0, 0)
+                    b.velocity.createRandom2D()
+                    flock.append(b)
+            if event.key == pygame.K_o:
+                if len(flock) > 0:
+                    for i in range(10):
+                        flock.remove(flock[0])
     window.fill(gray)
+
     for b0 in flock:
         b0.update()
     for b0 in flock:
