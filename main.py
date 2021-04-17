@@ -13,9 +13,10 @@ blue = (0, 0, 255)
 gray = (35, 35, 35)
 largura = 640
 altura = 300
-r = 5
+r = 2
 
 flock = []
+# Init boids
 for i in range(0):
     b = Boid(largura / 2, altura / 2, 0, 0)
     b.velocity.createRandom2D()
@@ -36,17 +37,21 @@ while continua:
             if event.key == pygame.K_ESCAPE:
                 continua = False
             if event.key == pygame.K_p:
-                for i in range(10):
-                    b = Boid(largura / 2, altura / 2, 0, 0)
+                for i in range(100):
+                    #b = Boid(largura / 2, altura / 2, 0, 0)
+                    b = Boid(random.randint(20, largura - 20), random.randint(20, altura - 20), 0, 0)
                     b.velocity.createRandom2D()
+                    #b.velocity.createRandom2D_mag1()
+                    b.velocity.set_magnitude(3)
                     flock.append(b)
             if event.key == pygame.K_o:
                 if len(flock) > 0:
                     for i in range(10):
                         flock.remove(flock[0])
     window.fill(gray)
-
+    
     for b0 in flock:
+        b0.flocking(flock)
         b0.update()
     for b0 in flock:
         pygame.draw.circle(window, b0.color, (b0.position.x, b0.position.y), r)
