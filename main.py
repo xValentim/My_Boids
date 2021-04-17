@@ -2,18 +2,11 @@ import pygame
 import numpy
 import math
 import random
+from values import *
 from boid import *
 
 pygame.init()
-white = (255, 255, 255)
-black = (0, 0, 0)
-red = (255, 0, 0)
-green = (0, 255, 0)
-blue = (0, 0, 255)
-gray = (35, 35, 35)
-largura = 640
-altura = 300
-r = 2
+r = 3 # Tamanho do boid
 
 flock = []
 # Init boids
@@ -37,7 +30,8 @@ while continua:
             if event.key == pygame.K_ESCAPE:
                 continua = False
             if event.key == pygame.K_p:
-                for i in range(100):
+                # Cria boids // k está em values
+                for i in range(k):
                     #b = Boid(largura / 2, altura / 2, 0, 0)
                     b = Boid(random.randint(20, largura - 20), random.randint(20, altura - 20), 0, 0)
                     b.velocity.createRandom2D()
@@ -46,10 +40,10 @@ while continua:
                     flock.append(b)
             if event.key == pygame.K_o:
                 if len(flock) > 0:
-                    for i in range(10):
+                    # Aniquila boids // k está em values
+                    for i in range(k):
                         flock.remove(flock[0])
     window.fill(gray)
-    
     for b0 in flock:
         b0.flocking(flock)
         b0.update()
