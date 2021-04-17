@@ -1,7 +1,7 @@
 import pygame
 import random
 import math
-
+from values import *
 
 class Vector:
     def __init__(self, x=0, y=0):
@@ -46,10 +46,27 @@ class Boid:
         self.velocity = Vector(vx0, vy0)
         self.acceleration = Vector(0, 0)
         self.color = color
-        self.max_force = 0.01
+        #self.max_force = 0.4
+        #self.max_speed = 4
     
+    def edges(self):
+        # Boundary condition menos eficiente
+        '''if self.position.x > largura:
+            self.position.x = 0
+        if self.position.x < 0:
+            self.position.x = largura
+        if self.position.y > altura:
+            self.position.y = 0
+        if self.position.y < 0:
+            self.positiony = altura'''
+        
+        # Boundary condition mais eficiente
+        self.position.x = (self.position.x) % largura
+        self.position.y = (self.position.y) % altura
+
     def update(self):
         self.position.add_vector(self.velocity) 
+        self.edges()
         self.velocity.add_vector(self.acceleration)
 
     #### Craig Reynolds model ####
@@ -62,7 +79,7 @@ class Boid:
     def align(self, boids):
         #avg = Vector()
         steering = Vector()
-        perception_align = 20
+        perception_align = 100
         count = 0
         for b in boids:
             distance = dist(self.position.x, self.position.y, b.position.x, b.position.y)
@@ -71,8 +88,10 @@ class Boid:
                 count += 1
         if count > 0:
             steering.set_magnitude(1 / count) # Multiplica o vetor por uma constante k (nesse caso: 1/count)
+            mod = steering.modulo()
+            #steering.set_magnitude(self.max_speed / mod)
             steering.sub_vector(self.velocity)
-            steering.limit(self.max_force)
+            #steering.limit(self.max_force)
         return steering
     
     def flocking(self, boids):
@@ -81,9 +100,23 @@ class Boid:
         self.acceleration = alignment
     
     # steer to move toward the average position of local flockmates
-    def cohesion(self):
+    def cohesion(self, boids):
         pass
-        #TODO
+        steering = Vector()
+        perception_align = 50
+        count = 0
+        for b in boids:
+            distance = dist(self.position.x, self.position.y, b.position.x, b.position.y)
+            if b != self and distance < perception_align:
+                steering.add_vector(b.velocity)
+                count += 1
+        if count > 0:
+            steering.set_magnitude(1 / count) # Multiplica o vetor por uma constante k (nesse caso: 1/count)
+            mod = steering.modulo()
+            steering.set_magnitude(self.max_speed / mod)
+            steering.sub_vector(self.velocity)
+            steering.limit(self.max_force)
+        return steering
 
     def show(self): 
         pass
