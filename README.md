@@ -10,9 +10,6 @@ Os boids são influenciados pelos seus vizinhos de modo que existirá uma força
 ### Separação
 Os boids são influenciados pelos seus vizinhos de modo que existirá uma força que atua no elemento no sentido oposto ao da média do vetor posição dos seus vizinhos (dentro do raio de percepção).
 
-
-
-
 ## Como usar?
 Inicie o arquivo main.py e pressione P para adicionar os boids e O para eliminar.
 
