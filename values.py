@@ -11,4 +11,4 @@ largura = 640
 altura = 300
 
 # Valor de criação e aniquilação
-k = 10
+k = 25
