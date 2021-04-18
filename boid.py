@@ -31,6 +31,11 @@ class Vector:
         y = math.cos(teta)
         self.x = x
         self.y = y
+    
+    def set_modulo(self, k):
+        self.x = self.x * (k / self.modulo())
+        self.y = self.y * (k / self.modulo())
+
 
     def modulo(self):
         return math.sqrt(self.x * self.x + self.y * self.y)
@@ -39,6 +44,7 @@ class Vector:
         ro = self.modulo()
         if ro > limit:
             self.set_magnitude(limit / ro)
+    
 
 class Boid:
     def __init__(self, x0, y0, vx0, vy0, color=(240, 240, 240)):
@@ -46,8 +52,8 @@ class Boid:
         self.velocity = Vector(vx0, vy0)
         self.acceleration = Vector(0, 0)
         self.color = color
-        #self.max_force = 0.4
-        #self.max_speed = 4
+        self.max_force = 1
+        self.max_speed = 4
     
     def edges(self):
         # Boundary condition menos eficiente
@@ -68,40 +74,34 @@ class Boid:
         self.position.add_vector(self.velocity) 
         self.edges()
         self.velocity.add_vector(self.acceleration)
+        self.velocity.limit(self.max_speed)
+        self.acceleration.set_magnitude(0)
 
     #### Craig Reynolds model ####
     # steer to avoid crowding local flockmates
-    def separation(self):
-        pass
-        #TODO
-
-    # steer towards the average heading of local flockmates
-    def align(self, boids):
-        #avg = Vector()
+    def separation(self, boids):
         steering = Vector()
-        perception_align = 100
+        perception_separation = 30
         count = 0
         for b in boids:
             distance = dist(self.position.x, self.position.y, b.position.x, b.position.y)
-            if b != self and distance < perception_align:
-                steering.add_vector(b.velocity)
+            if b != self and distance < perception_separation:
+                diff = Vector()
+                diff.add_vector(self.position)
+                diff.sub_vector(b.position)
+                diff.set_magnitude(1 / (distance * distance))
+                steering.add_vector(diff)
                 count += 1
         if count > 0:
             steering.set_magnitude(1 / count) # Multiplica o vetor por uma constante k (nesse caso: 1/count)
-            mod = steering.modulo()
-            #steering.set_magnitude(self.max_speed / mod)
+            mod = steering.modulo() 
+            steering.set_magnitude(self.max_speed / mod)
             steering.sub_vector(self.velocity)
-            #steering.limit(self.max_force)
+            steering.limit(self.max_force)
         return steering
-    
-    def flocking(self, boids):
-        #m = 1 # Implementação futura, massas diferentes para os boids
-        alignment = self.align(boids)
-        self.acceleration = alignment
-    
-    # steer to move toward the average position of local flockmates
-    def cohesion(self, boids):
-        pass
+
+    # steer towards the average heading of local flockmates
+    def align(self, boids):
         steering = Vector()
         perception_align = 50
         count = 0
@@ -116,7 +116,39 @@ class Boid:
             steering.set_magnitude(self.max_speed / mod)
             steering.sub_vector(self.velocity)
             steering.limit(self.max_force)
+            #steering.set_magnitude(1 / 8)
         return steering
+    
+    def flocking(self, boids):
+        #m = 1 # Implementação futura, massas diferentes para os boids
+        
+        alignment_v = self.align(boids)
+        cohesion_v = self.cohesion(boids)
+        separation_v = self.separation(boids)
+        # Principio da superposição no somatorio dos vetores de força
+        self.acceleration.add_vector(alignment_v)
+        self.acceleration.add_vector(cohesion_v)
+        self.acceleration.add_vector(separation_v)
+    
+    # steer to move toward the average position of local flockmates
+    def cohesion(self, boids):
+        steering = Vector()
+        perception_cohesion = 50
+        count = 0
+        for b in boids:
+            distance = dist(self.position.x, self.position.y, b.position.x, b.position.y)
+            if b != self and distance < perception_cohesion:
+                steering.add_vector(b.position)
+                count += 1
+        if count > 0:
+            steering.set_magnitude(1 / count) # Multiplica o vetor por uma constante k (nesse caso: 1/count)
+            steering.sub_vector(self.position)
+            mod = steering.modulo() 
+            steering.set_magnitude(self.max_speed / mod)
+            steering.sub_vector(self.velocity)
+            steering.limit(self.max_force)
+            #steering.set_magnitude(1 / 100)
+        return steering 
 
     def show(self): 
         pass
@@ -125,3 +157,13 @@ class Boid:
 
 def dist(x1, y1, x2, y2):
     return math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2))
+
+def dist1(x1, y1, x2, y2):
+    delta_y = y1 - y2
+    delta_x = x1 - x2
+    d1 = math.sqrt((delta_x * delta_x) + (delta_y * delta_y))
+    # Analisar o caso quando "a" não existe.
+    a = delta_y / delta_x
+    d_total = math.sqrt(altura * altura + (altura / a) * (altura / a))
+    d2 = d_total - d1
+    return min([d1, d2])
