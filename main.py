@@ -36,7 +36,7 @@ while continua:
                     b = Boid(random.randint(20, largura - 20), random.randint(20, altura - 20), 0, 0)
                     b.velocity.createRandom2D()
                     #b.velocity.createRandom2D_mag1()
-                    b.velocity.set_magnitude(3)
+                    b.velocity.set_magnitude(1.5)
                     flock.append(b)
             if event.key == pygame.K_o:
                 if len(flock) > 0:
