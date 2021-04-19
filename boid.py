@@ -45,6 +45,11 @@ class Vector:
         if ro > limit:
             self.set_magnitude(limit / ro)
     
+    def clamp_force(self, force, max_force):
+        if force.modulo() > max_force:
+            force.scale_to_length(max_force)
+        return force
+    
 
 class Boid:
     def __init__(self, x0, y0, vx0, vy0, color=(240, 240, 240)):
@@ -81,7 +86,7 @@ class Boid:
     # steer to avoid crowding local flockmates
     def separation(self, boids):
         steering = Vector()
-        perception_separation = 30
+        perception_separation = 15
         count = 0
         for b in boids:
             distance = dist(self.position.x, self.position.y, b.position.x, b.position.y)
@@ -97,7 +102,9 @@ class Boid:
             mod = steering.modulo() 
             steering.set_magnitude(self.max_speed / mod)
             steering.sub_vector(self.velocity)
+            steering.set_magnitude(1 / 5)
             steering.limit(self.max_force)
+            #print(steering.modulo())
         return steering
 
     # steer towards the average heading of local flockmates
@@ -115,8 +122,9 @@ class Boid:
             mod = steering.modulo()
             steering.set_magnitude(self.max_speed / mod)
             steering.sub_vector(self.velocity)
-            steering.limit(self.max_force)
-            #steering.set_magnitude(1 / 8)
+            #steering.limit(self.max_force)
+            steering.set_magnitude(1 / 2)
+            #print(steering.modulo())
         return steering
     
     def flocking(self, boids):
@@ -146,8 +154,10 @@ class Boid:
             mod = steering.modulo() 
             steering.set_magnitude(self.max_speed / mod)
             steering.sub_vector(self.velocity)
-            steering.limit(self.max_force)
-            #steering.set_magnitude(1 / 100)
+            #steering.limit(self.max_force)
+            #steering = self.clamp_force(steering, self.max_force)
+            steering.set_magnitude(1 / 15)
+            #print(steering.modulo())
         return steering 
 
     def show(self): 
