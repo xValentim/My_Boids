@@ -58,7 +58,7 @@ class Boid:
         self.acceleration = Vector(0, 0)
         self.color = color
         self.max_force = 1
-        self.max_speed = 4
+        self.max_speed = 2
     
     def edges(self):
         # Boundary condition menos eficiente
@@ -110,7 +110,7 @@ class Boid:
     # steer towards the average heading of local flockmates
     def align(self, boids):
         steering = Vector()
-        perception_align = 50
+        perception_align = 40
         count = 0
         for b in boids:
             distance = dist(self.position.x, self.position.y, b.position.x, b.position.y)
@@ -122,7 +122,7 @@ class Boid:
             mod = steering.modulo()
             steering.set_magnitude(self.max_speed / mod)
             steering.sub_vector(self.velocity)
-            #steering.limit(self.max_force)
+            steering.limit(self.max_force - 0.6)
             steering.set_magnitude(1 / 2)
             #print(steering.modulo())
         return steering
@@ -141,7 +141,7 @@ class Boid:
     # steer to move toward the average position of local flockmates
     def cohesion(self, boids):
         steering = Vector()
-        perception_cohesion = 50
+        perception_cohesion = 35
         count = 0
         for b in boids:
             distance = dist(self.position.x, self.position.y, b.position.x, b.position.y)
@@ -154,7 +154,7 @@ class Boid:
             mod = steering.modulo() 
             steering.set_magnitude(self.max_speed / mod)
             steering.sub_vector(self.velocity)
-            #steering.limit(self.max_force)
+            steering.limit(self.max_force - 0.5)
             #steering = self.clamp_force(steering, self.max_force)
             steering.set_magnitude(1 / 15)
             #print(steering.modulo())
